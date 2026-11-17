@@ -13,7 +13,6 @@
         <module>wanxinp2p-api</module>
         <module>wanxinp2p-gateway-server</module>
         <module>wanxinp2p-consumer-service</module>
-        <module>wanxinp2p-discover-server</module>
     </modules>
 
     <parent>
@@ -64,6 +63,14 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>2023.0.3</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>2023.0.3.4</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
