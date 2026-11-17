@@ -14,7 +14,6 @@ public class SwaggerConfiguration {
     @Bean
     public OpenAPI buildOpenAPI() {
         Contact contact = new Contact();
-        contact.setName("黑马程序员");
         return new OpenAPI()
                 .info(new Info()
                         .title("万信金融P2P平台-用户服务API文档")
