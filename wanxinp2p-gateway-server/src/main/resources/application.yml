@@ -25,6 +25,10 @@ spring:
           uri: lb://consumer-service
           predicates:
             - Path=/consumer/**
+        - id: account-service
+          uri: lb://account-service
+          predicates:
+            - Path=/account/**
 
 logging:
   config: classpath:log4j2-dev.xml
