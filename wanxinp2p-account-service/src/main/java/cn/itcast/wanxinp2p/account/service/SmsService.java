@@ -12,6 +12,9 @@ import java.util.Map;
 @Service
 public class SmsService {
 
+    /**
+     * 是否启用手机短信验证码
+     */
     @Value("${sms.enable}")
     private Boolean smsEnable;
 
