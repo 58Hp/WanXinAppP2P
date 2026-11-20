@@ -22,11 +22,27 @@ public class AccountController implements AccountAPI {
     @Operation(
             summary = "获取手机验证码",
             parameters = {
-                    @Parameter(name = "mobile", description = "手机号码", required = true, example = "136xxxx9685")
+                    @Parameter(name = "mobile", description = "手机号码", required = true, example = "135xxxx9685")
             }
     )
     @GetMapping("/sms/{mobile}")
     public RestResponse getSMSCode(@PathVariable(name = "mobile") String mobile) {
         return accountService.getSMSCode(mobile);
     }
+
+    @Operation(
+            summary = "校验手机号和验证码",
+            parameters = {
+                    @Parameter(name = "mobile", description = "手机号", required = true),
+                    @Parameter(name = "key", description = "校验标识", required = true),
+                    @Parameter(name = "code", description = "验证码", required = true)
+            }
+    )
+    @GetMapping(value = "/mobiles/{mobile}/key/{key}/code/{code}")
+    @Override
+        public RestResponse<Integer> checkMobile(@PathVariable String mobile,@PathVariable String key,@PathVariable String code) {
+            return RestResponse.success(accountService.checkMobile(mobile, key, code));
+        }
+
+
 }

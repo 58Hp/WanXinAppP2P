@@ -38,4 +38,17 @@ public interface SmsAgent {
     RestResponse generate(@RequestParam("effectiveTime") int effectiveTime,
                           @RequestParam("name") String name,
                           @RequestBody Map<String, String> request);
+
+    /**
+     * 校验短信验证码
+     *
+     * @param name             业务标识
+     * @param verificationKey  校验标识（redis 中的键）
+     * @param verificationCode 短信验证码
+     * @return 短信服务返回结果
+     */
+    @PostMapping(value = "/verify")
+    RestResponse verify(@RequestParam("name") String name,
+                        @RequestParam("verificationKey") String verificationKey,
+                        @RequestParam("verificationCode") String verificationCode);
 }
