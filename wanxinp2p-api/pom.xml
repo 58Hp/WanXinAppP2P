@@ -15,6 +15,11 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>cn.itcast.wanxinp2p</groupId>
             <artifactId>wanxinp2p-common</artifactId>
             <version>${project.version}</version>

@@ -1,26 +1,34 @@
 package cn.itcast.wanxinp2p.consumer.controller;
 
+import cn.itcast.wanxinp2p.api.consumer.ConsumerAPI;
+import cn.itcast.wanxinp2p.api.consumer.model.ConsumerRegisterDTO;
+import cn.itcast.wanxinp2p.common.domain.RestResponse;
+import cn.itcast.wanxinp2p.consumer.service.ConsumerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Tag(name = "用户服务的Controller", description = "用户服务API")
-public class ConsumerController {
+public class ConsumerController implements ConsumerAPI {
 
-    @Operation(summary = "测试hello")
-    @GetMapping(path = "/hello")
-    public String hello(){
-        return "hello";
-    }
+    @Autowired
+    ConsumerService consumerService;
 
-    @Operation(summary = "测试hi")
-    @PostMapping(value = "/hi")
-    public String hi(@Parameter(name = "name", description = "姓名", required = true) String name){
-        return "hi,"+name;
+    @Override
+    @Operation(description = "用户注册",
+    parameters = {
+            @Parameter(name = "consumerRegisterDTO", description = "注册信息", required = true, schema = @Schema(implementation = ConsumerRegisterDTO.class))
+    })
+    @PostMapping(value = "/consumers")
+    public RestResponse register(@RequestBody ConsumerRegisterDTO consumerRegisterDTO) {
+        consumerService.register(consumerRegisterDTO);
+        return RestResponse.success();
     }
 
 }

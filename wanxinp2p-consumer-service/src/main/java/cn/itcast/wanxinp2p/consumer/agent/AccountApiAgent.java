@@ -1,0 +1,20 @@
+package cn.itcast.wanxinp2p.consumer.agent;
+
+import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
+import cn.itcast.wanxinp2p.api.account.model.AccountRegisterDTO;
+import cn.itcast.wanxinp2p.common.domain.RestResponse;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+@FeignClient(value = "account-service", path = "/account")
+public interface AccountApiAgent {
+    /**
+     * 用户注册
+     *
+     * @param accountRegisterDTO
+     * @return
+     */
+    @PostMapping(value = "/l/accounts")
+    RestResponse<AccountDTO> register(@RequestBody AccountRegisterDTO accountRegisterDTO);
+}

@@ -1,4 +1,5 @@
-package cn.itcast.wanxinp2p.account;
+package cn.itcast.wanxinp2p.consumer;
+
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -8,12 +9,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = {"cn.itcast.wanxinp2p.account.agent"})
-@MapperScan("cn.itcast.wanxinp2p.account.mapper")
-public class AccountService {
-
-	public static void main(String[] args) {
-		SpringApplication.run(AccountService.class, args);
-	}
-
+@EnableFeignClients(basePackages = {"cn.itcast.wanxinp2p.consumer.agent"})
+@MapperScan("cn.itcast.wanxinp2p.consumer.mapper")
+public class ConsumerApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ConsumerApplication.class, args);
+    }
 }

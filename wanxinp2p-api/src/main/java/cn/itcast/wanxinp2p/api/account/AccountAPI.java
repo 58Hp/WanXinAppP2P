@@ -1,5 +1,7 @@
 package cn.itcast.wanxinp2p.api.account;
 
+import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
+import cn.itcast.wanxinp2p.api.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 
 public interface AccountAPI {
@@ -19,6 +21,13 @@ public interface AccountAPI {
      * @return
      */
     RestResponse<Integer> checkMobile(String mobile, String key, String code);
+
+    /**
+     * 用户注册
+     * @param accountRegisterDTO
+     * @return
+     */
+    RestResponse<AccountDTO> register(AccountRegisterDTO accountRegisterDTO);
 
 
 }

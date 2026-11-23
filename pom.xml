@@ -26,6 +26,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>21</java.version>
+        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+        <org.projectlombok.version>1.18.34</org.projectlombok.version>
+        <mybatis.plus.version>3.5.5</mybatis.plus.version>
     </properties>
 
     <!--依赖管理-->
@@ -54,6 +57,7 @@
                 <artifactId>elastic-job-lite-spring</artifactId>
                 <version>2.1.5</version>
             </dependency>
+
             <dependency>
                 <groupId>com.github.kuhn-he</groupId>
                 <artifactId>elastic-job-lite-spring-boot-starter</artifactId>
@@ -82,10 +86,34 @@
                 <version>2.5.0</version>
             </dependency>
 
+            <!-- MapStruct 核心依赖 -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${org.mapstruct.version}</version>
+            </dependency>
+
+            <!-- MapStruct 编译器处理器 -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>${org.mapstruct.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- Lombok（可选，如果项目中使用了 Lombok） -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.18.34</version>
+                <version>${org.projectlombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- Lombok 与 MapStruct 的绑定（解决冲突） -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok-mapstruct-binding</artifactId>
+                <version>0.2.0</version>
             </dependency>
 
             <dependency>
@@ -116,13 +144,13 @@
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>3.1.0</version>
+                <version>${mybatis.plus.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-generator</artifactId>
-                <version>3.1.0</version>
+                <version>${mybatis.plus.version}</version>
             </dependency>
 
             <dependency>
@@ -189,6 +217,13 @@
                 <version>1.6.2</version>
             </dependency>
 
+            <!-- 自动格式化 -->
+            <dependency>
+                <groupId>com.google.googlejavaformat</groupId>
+                <artifactId>google-java-format</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -221,6 +256,24 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
+                    <annotationProcessorPaths>
+                        <!-- Lombok 必须放在 MapStruct 之前 -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${org.projectlombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
@@ -231,6 +284,7 @@
                     <useDefaultDelimiters>true</useDefaultDelimiters>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 
