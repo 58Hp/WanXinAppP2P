@@ -3,6 +3,7 @@ package cn.itcast.wanxinp2p.account.controller;
 import cn.itcast.wanxinp2p.account.service.AccountService;
 import cn.itcast.wanxinp2p.api.account.AccountAPI;
 import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
+import cn.itcast.wanxinp2p.api.account.model.AccountLoginDTO;
 import cn.itcast.wanxinp2p.api.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,5 +57,16 @@ public class AccountController implements AccountAPI {
             return RestResponse.success(accountService.register(accountRegisterDTO));
     }
 
+    @Operation(
+            summary = "用户登录",
+            parameters = {
+                    @Parameter(name = "accountLoginDTO", description = "登录信息", required = true, schema = @Schema(implementation = AccountLoginDTO.class))
+            }
+    )
+    @PostMapping(value = "/l/accounts/session")
+    @Override
+    public RestResponse<AccountDTO> login(@RequestBody AccountLoginDTO accountLoginDTO) {
+        return RestResponse.success(accountService.login(accountLoginDTO));
+    }
 
 }
