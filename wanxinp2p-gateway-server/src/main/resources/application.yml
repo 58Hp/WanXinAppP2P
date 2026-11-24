@@ -29,6 +29,10 @@ spring:
           uri: lb://account-service
           predicates:
             - Path=/account/**
+        - id: uaa-service
+          uri: lb://uaa-service
+          predicates:
+            - Path=/uaa/**
 
 logging:
   config: classpath:log4j2-dev.xml
