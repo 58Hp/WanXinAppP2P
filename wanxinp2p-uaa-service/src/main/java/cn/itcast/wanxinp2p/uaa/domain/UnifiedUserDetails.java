@@ -1,12 +1,13 @@
 package cn.itcast.wanxinp2p.uaa.domain;
 
 
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
 
-
+@Data
 public class UnifiedUserDetails implements UserDetails {
 
     private static final long serialVersionUID = 3957586021470480642L;
@@ -35,7 +36,6 @@ public class UnifiedUserDetails implements UserDetails {
      */
     private String departmentId;
 
-
     /**
      * 用户的角色权限集合，key为角色，value为角色下权限集合
      */
@@ -47,7 +47,6 @@ public class UnifiedUserDetails implements UserDetails {
      */
     private Map<String, Object> payload = new HashMap<>();
 
-
     public UnifiedUserDetails(String username, String password ) {
         this.username = username;
         this.password = password;
@@ -58,8 +57,6 @@ public class UnifiedUserDetails implements UserDetails {
     	this.password = password;
         grantedAuthorities.addAll(authorities);
     }
-
-
 
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
@@ -76,15 +73,6 @@ public class UnifiedUserDetails implements UserDetails {
         return username;
     }
 
-    public Map<String, Object> getPayload() {
-        return payload;
-    }
-
-    public void setPayload(Map<String, Object> payload) {
-        this.payload = payload;
-    }
-    
-   
     /* 账户是否未过期 */
     @Override
     public boolean isAccountNonExpired() {
@@ -108,40 +96,5 @@ public class UnifiedUserDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-
-
-    public String getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
-
-    public String getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(String tenantId) {
-        this.tenantId = tenantId;
-    }
-
-    public String getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(String departmentId) {
-        this.departmentId = departmentId;
-    }
-
-    public Map<String, List<String>> getUserAuthorities() {
-        return userAuthorities;
-    }
-
-    public void setUserAuthorities(Map<String, List<String>> userAuthorities) {
-        this.userAuthorities = userAuthorities;
-    }
-
 
 }

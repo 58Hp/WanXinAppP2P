@@ -10,14 +10,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Tag(name = "统一账户的Controller", description = "统一账户API")
 public class AccountController implements AccountAPI {
 
-    @Autowired
+    @Resource
     AccountService accountService;
 
     @Override

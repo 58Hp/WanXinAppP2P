@@ -33,6 +33,11 @@ spring:
           uri: lb://uaa-service
           predicates:
             - Path=/uaa/**
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:53020/oauth2/jwks
 
 logging:
   config: classpath:log4j2-dev.xml
