@@ -1,0 +1,14 @@
+[${project.name}][${env:SERVER_PORT}] 2026-11-25 11:39:21,603 INFO [main][DefaultSecurityFilterChain.java:54] - Will secure any request with [
+org.springframework.security.web.session.DisableEncodeUrlFilter@29f114e0,
+org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@6c569caf,
+org.springframework.security.web.context.SecurityContextHolderFilter@5776a9f8,
+org.springframework.security.web.header.HeaderWriterFilter@78e34499,
+org.springframework.security.web.authentication.logout.LogoutFilter@2c750b69,
+org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@2ddb6c71,
+org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@26caf4b6,
+org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@29a5f924,
+org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6771efaa,
+org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@446fb72e,
+org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5f6ba085,
+org.springframework.security.web.access.ExceptionTranslationFilter@28b16193,
+org.springframework.security.web.access.intercept.AuthorizationFilter@6484364f]
