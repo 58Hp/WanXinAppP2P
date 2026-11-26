@@ -108,7 +108,7 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- Spring Authorization Server（Boot 3 下的授权服务器，替代老版 spring-cloud-starter-oauth2） -->
+        <!-- Spring Authorization Server -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-authorization-server</artifactId>

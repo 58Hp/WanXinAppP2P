@@ -33,6 +33,13 @@ public interface AccountService extends IService<Account> {
     AccountDTO register(AccountRegisterDTO registerDTO);
 
     /**
+     * 根据手机号查询账户信息（不存在返回 null）
+     * @param mobile 手机号
+     * @return
+     */
+    AccountDTO getAccountByMobile(String mobile);
+
+    /**
      登录功能
      @param accountLoginDTO 封装登录请求数据
      @return 用户及权限信息

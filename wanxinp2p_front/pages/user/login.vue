@@ -46,11 +46,11 @@ export default {
                 codeKey: '',
                 positionTop: 0,
 				loginData:{
-					grant_type: 'password',
+					grant_type: 'urn:wanxinp2p:oauth:grant-type:sms',
 					client_id: 'wanxin-p2p-web-h5',
 					client_secret: 'wanxinp2p',
 					domain: 'c',
-					authenticationType: 'password'
+					authenticationType: 'sms'
 				}
             }
         },
@@ -121,7 +121,16 @@ export default {
 			log(data){
 				this.request({
 					url: 'uaa/oauth2/token',
-					params: data,
+					params: {
+						grant_type: this.loginData.grant_type,
+						client_id: this.loginData.client_id,
+						client_secret: this.loginData.client_secret,
+						domain: this.loginData.domain,
+						authenticationType: this.loginData.authenticationType,
+						mobile: this.mobile,
+						code: this.password,
+						key: this.codeKey
+					},
 					method: 'POST'
 				}).then(res => {
 					uni.setStorage({key:'loginData', data: data})

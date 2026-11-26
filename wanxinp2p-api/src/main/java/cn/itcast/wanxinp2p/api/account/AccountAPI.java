@@ -24,6 +24,13 @@ public interface AccountAPI {
     RestResponse<Integer> checkMobile(String mobile, String key, String code);
 
     /**
+     * 根据手机号查询账户信息（用于判断账号是否存在）
+     * @param mobile 手机号
+     * @return
+     */
+    RestResponse<AccountDTO> getAccountByMobile(String mobile);
+
+    /**
      * 用户注册
      * @param accountRegisterDTO
      * @return

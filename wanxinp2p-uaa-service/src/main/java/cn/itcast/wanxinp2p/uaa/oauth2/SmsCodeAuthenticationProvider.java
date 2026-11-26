@@ -1,10 +1,14 @@
 package cn.itcast.wanxinp2p.uaa.oauth2;
 
-import org.springframework.security.authentication.AuthenticationManager;
+import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
+import cn.itcast.wanxinp2p.common.domain.RestResponse;
+import cn.itcast.wanxinp2p.uaa.agent.AccountApiAgent;
+import cn.itcast.wanxinp2p.uaa.domain.UnifiedUserDetails;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
@@ -18,58 +22,67 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 密码模式（password grant）认证处理器
+ * 短信验证码扩展授权处理器。
+ * <p>
+ * 专注短信登录：直接通过 AccountApiAgent 校验短信验证码并获取账户，不再依赖账密登录的
+ * IntegrationUserDetailsAuthenticationProvider，两者解耦。
  */
-public class OAuth2PasswordAuthenticationProvider implements AuthenticationProvider {
+public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
 
     private static final String ERROR_URI = "https://datatracker.ietf.org/doc/html/rfc6749#section-5.2";
 
-    private final AuthenticationManager authenticationManager;
+    private final AccountApiAgent accountApiAgent;
     private final OAuth2AuthorizationService authorizationService;
     private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
 
-    public OAuth2PasswordAuthenticationProvider(AuthenticationManager authenticationManager,
-                                                OAuth2AuthorizationService authorizationService,
-                                                OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator) {
-        this.authenticationManager = authenticationManager;
+    public SmsCodeAuthenticationProvider(AccountApiAgent accountApiAgent,
+                                         OAuth2AuthorizationService authorizationService,
+                                         OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator) {
+        this.accountApiAgent = accountApiAgent;
         this.authorizationService = authorizationService;
         this.tokenGenerator = tokenGenerator;
     }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        OAuth2PasswordAuthenticationToken passwordAuthentication = (OAuth2PasswordAuthenticationToken) authentication;
+        SmsCodeAuthenticationToken smsAuthentication = (SmsCodeAuthenticationToken) authentication;
 
         OAuth2ClientAuthenticationToken clientPrincipal =
-                getAuthenticatedClientElseThrowInvalidClient(passwordAuthentication);
+                getAuthenticatedClientElseThrowInvalidClient(smsAuthentication);
         RegisteredClient registeredClient = clientPrincipal.getRegisteredClient();
 
-        // 用用户名密码认证用户（把 domain/authenticationType 通过 details 传给自定义 Provider）
-        Map<String, Object> params = passwordAuthentication.getAdditionalParameters();
-        Map<String, String> details = new HashMap<>();
-        if (params != null) {
-            details.put("domain", params.get("domain") == null ? null : params.get("domain").toString());
-            details.put("authenticationType", params.get("authenticationType") == null ? null : params.get("authenticationType").toString());
+        // 查询账户（判断账号是否存在；验证码校验已由前端通过 checkMobile 完成）
+        RestResponse<AccountDTO> accountResult = accountApiAgent.getAccountByMobile(smsAuthentication.getMobile());
+        if (accountResult.getCode() != 0 || accountResult.getResult() == null) {
+            throw new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT,
+                    "用户不存在", ERROR_URI));
         }
-        UsernamePasswordAuthenticationToken usernamePasswordToken =
-                new UsernamePasswordAuthenticationToken(passwordAuthentication.getUsername(), passwordAuthentication.getPassword());
-        usernamePasswordToken.setDetails(details);
-        Authentication userAuthentication = authenticationManager.authenticate(usernamePasswordToken);
+        AccountDTO account = accountResult.getResult();
 
-        // 校验 scope
+        // 构建认证主体
+        UnifiedUserDetails user = new UnifiedUserDetails(account.getUsername(), "",
+                AuthorityUtils.createAuthorityList());
+        user.setMobile(account.getMobile());
+        UsernamePasswordAuthenticationToken userAuthentication =
+                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+
+        // 4. 校验 scope
         Set<String> authorizedScopes = new LinkedHashSet<>(registeredClient.getScopes());
-        if (passwordAuthentication.getScopes() != null && !passwordAuthentication.getScopes().isEmpty()) {
-            Set<String> unauthorizedScopes = passwordAuthentication.getScopes().stream()
+        if (smsAuthentication.getScopes() != null && !smsAuthentication.getScopes().isEmpty()) {
+            Set<String> unauthorizedScopes = smsAuthentication.getScopes().stream()
                     .filter(scope -> !registeredClient.getScopes().contains(scope))
                     .collect(Collectors.toSet());
             if (!unauthorizedScopes.isEmpty()) {
                 throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_SCOPE);
             }
-            authorizedScopes = new LinkedHashSet<>(passwordAuthentication.getScopes());
+            authorizedScopes = new LinkedHashSet<>(smsAuthentication.getScopes());
         }
 
         DefaultOAuth2TokenContext.Builder tokenContextBuilder = DefaultOAuth2TokenContext.builder()
@@ -77,12 +90,12 @@ public class OAuth2PasswordAuthenticationProvider implements AuthenticationProvi
                 .principal(userAuthentication)
                 .authorizationServerContext(AuthorizationServerContextHolder.getContext())
                 .authorizedScopes(authorizedScopes)
-                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
-                .authorizationGrant(passwordAuthentication);
+                .authorizationGrantType(SmsCodeAuthenticationToken.SMS_GRANT_TYPE)
+                .authorizationGrant(smsAuthentication);
 
         OAuth2Authorization.Builder authorizationBuilder = OAuth2Authorization.withRegisteredClient(registeredClient)
                 .principalName(userAuthentication.getName())
-                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
+                .authorizationGrantType(SmsCodeAuthenticationToken.SMS_GRANT_TYPE)
                 .attribute(Principal.class.getName(), userAuthentication)
                 .authorizedScopes(authorizedScopes);
 
@@ -125,7 +138,7 @@ public class OAuth2PasswordAuthenticationProvider implements AuthenticationProvi
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return OAuth2PasswordAuthenticationToken.class.isAssignableFrom(authentication);
+        return SmsCodeAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
     private OAuth2ClientAuthenticationToken getAuthenticatedClientElseThrowInvalidClient(Authentication authentication) {

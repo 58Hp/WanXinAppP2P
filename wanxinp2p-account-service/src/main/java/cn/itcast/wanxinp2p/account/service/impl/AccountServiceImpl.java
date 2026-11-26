@@ -74,7 +74,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         // 获取账户
         Account account = null;
         if (accountLoginDTO.getDomain().equalsIgnoreCase(AccountDomain.C_DOMAIN.getDomain())) {
-            account = getAccountByMobile(accountLoginDTO.getMobile());//获取c端用户
+            account = findAccountByMobile(accountLoginDTO.getMobile());//获取c端用户
         } else {
             account = getAccountByUsername(accountLoginDTO.getUsername());//获取b端用户
         }
@@ -93,12 +93,18 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     /**
-     * 根据手机获取账户信息
-     *
-     * @param mobile 手机号
-     * @return 账户实体
+     * 根据手机号查询账户信息（不存在返回 null）
      */
-    private Account getAccountByMobile(String mobile) {
+    @Override
+    public AccountDTO getAccountByMobile(String mobile) {
+        Account account = findAccountByMobile(mobile);
+        return account == null ? null : AccountConverter.INSTANCE.convertAccountEntityToDTO(account);
+    }
+
+    /**
+     * 根据手机获取账户实体
+     */
+    private Account findAccountByMobile(String mobile) {
         return getOne(new QueryWrapper<Account>().lambda().eq(Account::getMobile, mobile));
     }
 

@@ -47,6 +47,18 @@ public class AccountController implements AccountAPI {
     }
 
     @Operation(
+            summary = "根据手机号查询账户信息",
+            parameters = {
+                    @Parameter(name = "mobile", description = "手机号", required = true)
+            }
+    )
+    @GetMapping(value = "/mobiles/{mobile}")
+    @Override
+    public RestResponse<AccountDTO> getAccountByMobile(@PathVariable String mobile) {
+        return RestResponse.success(accountService.getAccountByMobile(mobile));
+    }
+
+    @Operation(
             summary = "用户注册",
             parameters = {
                     @Parameter(name = "accountRegisterDTO", description = "账户注册信息", required = true, schema = @Schema(implementation = AccountRegisterDTO.class))
