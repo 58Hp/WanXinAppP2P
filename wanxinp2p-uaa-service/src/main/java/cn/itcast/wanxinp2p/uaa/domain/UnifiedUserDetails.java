@@ -41,7 +41,6 @@ public class UnifiedUserDetails implements UserDetails {
      */
     private Map<String,List<String>> userAuthorities = new HashMap<>();
 
-
     /**
      * 用户附加信息,json字符串,统一认证透传
      */

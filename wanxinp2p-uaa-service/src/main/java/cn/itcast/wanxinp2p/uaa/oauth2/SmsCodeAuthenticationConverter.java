@@ -1,5 +1,6 @@
 package cn.itcast.wanxinp2p.uaa.oauth2;
 
+import cn.itcast.wanxinp2p.uaa.domain.SmsCodeAuthenticationToken;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

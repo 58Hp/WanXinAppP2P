@@ -1,5 +1,6 @@
-package cn.itcast.wanxinp2p.uaa.oauth2;
+package cn.itcast.wanxinp2p.uaa.domain;
 
+import lombok.Getter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationGrantAuthenticationToken;
@@ -10,6 +11,7 @@ import java.util.Set;
 /**
  * 短信验证码扩展授权（grant_type=urn:wanxinp2p:oauth:grant-type:sms）认证令牌
  */
+@Getter
 public class SmsCodeAuthenticationToken extends OAuth2AuthorizationGrantAuthenticationToken {
 
     /**
@@ -33,15 +35,4 @@ public class SmsCodeAuthenticationToken extends OAuth2AuthorizationGrantAuthenti
         this.scopes = scopes;
     }
 
-    public String getMobile() {
-        return mobile;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public Set<String> getScopes() {
-        return scopes;
-    }
 }

@@ -3,6 +3,7 @@ package cn.itcast.wanxinp2p.uaa.oauth2;
 import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.uaa.agent.AccountApiAgent;
+import cn.itcast.wanxinp2p.uaa.domain.SmsCodeAuthenticationToken;
 import cn.itcast.wanxinp2p.uaa.domain.UnifiedUserDetails;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
