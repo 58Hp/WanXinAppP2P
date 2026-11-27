@@ -30,21 +30,17 @@
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <org.projectlombok.version>1.18.34</org.projectlombok.version>
         <mybatis.plus.version>3.5.5</mybatis.plus.version>
+        <seata.version>2.0.0</seata.version>
     </properties>
 
     <!--依赖管理-->
     <dependencyManagement>
         <dependencies>
-            <!-- 分布式事务 -->
+            <!-- Seata 分布式事务 -->
             <dependency>
-                <groupId>org.dromara</groupId>
-                <artifactId>hmily-springcloud</artifactId>
-                <version>2.0.4-RELEASE</version>
-            </dependency>
-            <dependency>
-                <groupId>com.esotericsoftware</groupId>
-                <artifactId>kryo</artifactId>
-                <version>4.0.2</version>
+                <groupId>io.seata</groupId>
+                <artifactId>seata-spring-boot-starter</artifactId>
+                <version>${seata.version}</version>
             </dependency>
 
             <!-- 分布式任务调度 -->

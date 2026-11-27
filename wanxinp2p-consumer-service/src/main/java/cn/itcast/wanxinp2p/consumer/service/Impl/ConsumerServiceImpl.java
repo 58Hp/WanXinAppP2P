@@ -17,6 +17,7 @@ import cn.itcast.wanxinp2p.consumer.mapper.ConsumerMapper;
 import cn.itcast.wanxinp2p.consumer.service.ConsumerService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +44,7 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
     }
 
     @Override
+    @GlobalTransactional(name = "consumer-register", rollbackFor = Exception.class)
     public void register(ConsumerRegisterDTO consumerRegisterDTO) {
         //检测是否已注册
         if (checkMobile(consumerRegisterDTO.getMobile()) == 1) {
