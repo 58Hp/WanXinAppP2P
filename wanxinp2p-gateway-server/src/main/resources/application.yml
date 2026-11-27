@@ -37,7 +37,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:53020/oauth2/jwks
+          jwk-set-uri: http://localhost:53020/uaa/oauth2/jwks
 
 logging:
   config: classpath:log4j2-dev.xml

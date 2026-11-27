@@ -29,7 +29,7 @@ public class RestResponse<T> {
 		return response;
 	}
 
-	public static <T> RestResponse<T> validfail(String msg) {
+	public static <T> RestResponse<T> failure(String msg) {
 		RestResponse<T> response = new RestResponse<T>();
 		response.setCode(-2);
 		response.setMsg(msg);

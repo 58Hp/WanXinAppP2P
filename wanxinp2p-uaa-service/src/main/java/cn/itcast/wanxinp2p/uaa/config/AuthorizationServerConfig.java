@@ -1,15 +1,19 @@
 package cn.itcast.wanxinp2p.uaa.config;
 
+import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.uaa.agent.AccountApiAgent;
 import cn.itcast.wanxinp2p.uaa.domain.SmsCodeAuthenticationToken;
 import cn.itcast.wanxinp2p.uaa.domain.UnifiedUserDetails;
 import cn.itcast.wanxinp2p.uaa.oauth2.SmsCodeAuthenticationConverter;
 import cn.itcast.wanxinp2p.uaa.oauth2.SmsCodeAuthenticationProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,10 +24,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
@@ -31,6 +35,7 @@ import org.springframework.security.oauth2.server.authorization.JdbcOAuth2Author
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -44,11 +49,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -56,6 +64,8 @@ import java.util.UUID;
  */
 @Configuration
 public class AuthorizationServerConfig {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 客户端（应用）信息，存 oauth2_registered_client 表
@@ -205,18 +215,59 @@ public class AuthorizationServerConfig {
             HttpSecurity http,
             SmsCodeAuthenticationProvider smsCodeAuthenticationProvider) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+        http
+                .getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .tokenEndpoint(tokenEndpoint -> tokenEndpoint
                         .accessTokenRequestConverter(new SmsCodeAuthenticationConverter())
-                        .authenticationProvider(smsCodeAuthenticationProvider))
+                        .authenticationProvider(smsCodeAuthenticationProvider)
+                        .accessTokenResponseHandler(this::writeAccessTokenResponse)
+                        .errorResponseHandler(this::writeAccessTokenErrorResponse))
                 .oidc(Customizer.withDefaults());
-        http.exceptionHandling(exceptions -> exceptions
+        http
+                .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
                                 new LoginUrlAuthenticationEntryPoint("/login"),
                                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)))
                 .oauth2ResourceServer(resourceServer -> resourceServer
                         .jwt(Customizer.withDefaults()));
         return http.build();
+    }
+
+    /**
+     * token 成功响应：返回 {code:0, msg:"", access_token, refresh_token, token_type, expires_in}
+     */
+    private void writeAccessTokenResponse(HttpServletRequest request, HttpServletResponse response,
+                                          Authentication authentication) throws IOException {
+        OAuth2AccessTokenAuthenticationToken accessTokenAuthentication =
+                (OAuth2AccessTokenAuthenticationToken) authentication;
+        OAuth2AccessToken accessToken = accessTokenAuthentication.getAccessToken();
+        OAuth2RefreshToken refreshToken = accessTokenAuthentication.getRefreshToken();
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("access_token", accessToken.getTokenValue());
+        data.put("token_type", accessToken.getTokenType().getValue());
+        if (accessToken.getIssuedAt() != null && accessToken.getExpiresAt() != null) {
+            data.put("expires_in", Duration.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()).getSeconds());
+        }
+        if (refreshToken != null) {
+            data.put("refresh_token", refreshToken.getTokenValue());
+        }
+
+        response.setContentType("application/json;charset=UTF-8");
+        objectMapper.writeValue(response.getWriter(), RestResponse.success(data));
+    }
+
+    /**
+     * token 失败响应：返回 {code:-1, msg:错误描述}
+     */
+    private void writeAccessTokenErrorResponse(HttpServletRequest request, HttpServletResponse response,
+                                               AuthenticationException exception) throws IOException {
+        OAuth2Error error = exception instanceof OAuth2AuthenticationException oauth2Exception
+                ? oauth2Exception.getError() : new OAuth2Error("server_error");
+        String msg = error.getDescription() != null ? error.getDescription() : error.getErrorCode();
+
+        response.setContentType("application/json;charset=UTF-8");
+        objectMapper.writeValue(response.getWriter(), RestResponse.failure(msg));
     }
 
     private static KeyPair generateRsaKey() {
